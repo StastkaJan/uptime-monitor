@@ -1,13 +1,15 @@
 # Implementation roadmap
 
+M1 implementation is in progress. See [verification evidence](verification.md) for checks and remaining gate requirements.
+
 Implement in this order. Each milestone should be a small reviewable change or a few focused commits. The Docker Compose development configuration is prepared; the unchecked items describe future work.
 
 ## 1. Runnable shell
 
-- [ ] Initialize the Go module through Compose and add the executable entry point.
-- [ ] Serve an embedded dashboard shell and CSS, plus `GET /healthz`.
+- [x] Initialize the Go module through Compose and add the executable entry point.
+- [x] Serve an embedded dashboard shell and CSS, plus `GET /healthz`.
 - [ ] Add address configuration, server timeouts, and graceful shutdown.
-- [ ] Test the health route and full dashboard response.
+- [x] Test the health route and full dashboard response.
 - [ ] Validate Compose configuration, startup, port access, and graceful shutdown with the real app.
 
 Done when `docker compose up` serves a page at `http://localhost:8080`, Compose-based tests/vet/build pass, and the binary serves embedded assets from another working directory.

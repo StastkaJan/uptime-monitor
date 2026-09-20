@@ -1,0 +1,44 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1e293b;
+  background: #f1f5f9;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 3rem clamp(1rem, 4vw, 3rem);
+}
+
+h1 { margin: 0; font-size: clamp(2rem, 5vw, 3rem); }
+h2 { margin-top: 0; }
+h3 { margin-top: 0; }
+
+.eyebrow {
+  color: #475569;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+main {
+  margin-top: 2rem;
+  padding: clamp(1rem, 4vw, 2rem);
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.empty-state {
+  padding: 2rem 1rem;
+  border: 1px dashed #94a3b8;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.empty-state p { margin-bottom: 0; color: #475569; }

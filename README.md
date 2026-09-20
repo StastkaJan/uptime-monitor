@@ -2,7 +2,7 @@
 
 A Go + HTMX showcase: add a website, watch its health, and inspect outages as they happen.
 
-**Status: planning scaffold.** The folders, Docker Compose development configuration, and implementation directions are prepared; application code, dependencies, and tests have not been created yet.
+**Status: runnable shell (M1).** The embedded dashboard, CSS, and health endpoint are implemented. Configuration, graceful shutdown, and verification are tracked in [verification evidence](docs/verification.md). Monitor management and background checks remain planned.
 
 ## The idea
 
@@ -46,7 +46,7 @@ docker compose config --quiet
 docker compose run --rm --no-deps app go version
 ```
 
-Once milestone 1 is implemented, start with `docker compose up` and open `http://localhost:8080`. Until then, startup exits with a scaffold message. See [development directions](docs/development.md) for module setup, restart, and storage behavior.
+Start with `docker compose up` and open `http://localhost:8080`; `http://localhost:8080/healthz` returns process liveness. See [development directions](docs/development.md) for module setup, restart, and storage behavior.
 
 ## Folder map
 
@@ -67,4 +67,4 @@ uptime-monitor/
 
 Read [architecture](docs/architecture.md), then follow the [roadmap](docs/roadmap.md). Use [development directions](docs/development.md) and the [testing guide](docs/testing.md) while implementing.
 
-The first task is a runnable page and health endpoint, as described in milestone 1. No application run command works until that milestone is implemented.
+See [verification evidence](docs/verification.md) for implemented slices and remaining integration checks. Proceed to persistent monitors only after the runnable-shell gate passes.

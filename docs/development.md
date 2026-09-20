@@ -2,30 +2,29 @@
 
 ## Starting implementation
 
-This is a documentation scaffold with a Compose development service, so there is currently no Go module or executable. Docker Compose is the default workflow; installing Go on the host is optional. Docker and Go were not available on PATH when this configuration was prepared, so container execution has not yet been verified.
+The runnable shell includes the Go module and executable. Docker Compose is the default workflow; installing Go on the host is optional. Go 1.27.1 on Docker Desktop Linux amd64 has been verified; see [verification evidence](verification.md).
 
 1. Install Docker with Compose v2 and start its engine. On Windows, use Docker Desktop in Linux-container mode. Confirm `docker compose version` and `docker info` work.
-2. From this folder, validate the configuration and initialize the module using the commands below. The service uses Go 1.27.1; keep CI aligned with that version.
+2. From this folder, validate the configuration and check the toolchain using the commands below. The service uses Go 1.27.1; keep CI aligned with that version.
 3. Implement milestone 1 from [the roadmap](roadmap.md). Add the SQLite driver only in the storage milestone and vendor a pinned HTMX asset when interactions are introduced.
 4. Commit dependency lock information and update this guide with the exact versions and any new setup steps.
 
-The following commands work before application code exists. The first image download requires internet access:
+Check the prepared toolchain before starting the application. The first image download requires internet access:
 
 ```powershell
 docker compose config --quiet
 docker compose run --rm --no-deps app go version
-docker compose run --rm --no-deps app go mod init github.com/StastkaJan/uptime-monitor
 ```
 
-Run module initialization only once. One-off commands override the app startup command and do not publish its port. On native Linux, the default container user can create root-owned source files; use `docker compose run --rm --no-deps --user "$(id -u):$(id -g)" -e GOCACHE=/tmp/go-build app ...` for commands that write source files, such as module initialization or formatting.
+The committed module uses only the standard library; no dependency download or `go.sum` is needed yet. One-off commands override the app startup command and do not publish its port. On native Linux, the default container user can create root-owned source files; use `docker compose run --rm --no-deps --user "$(id -u):$(id -g)" -e GOCACHE=/tmp/go-build app ...` for commands that write source files, such as module initialization or formatting.
 
-After milestone 1 exists, start the app and open `http://localhost:8080`:
+Start the app and open `http://localhost:8080`:
 
 ```powershell
 docker compose up
 ```
 
-Until then, `up` exits with a message pointing to milestone 1. To run in the background, use `docker compose up -d`; inspect output with `docker compose logs -f app`. After changing source or embedded assets, run `docker compose restart app` to rebuild and restart. Initial builds can take longer while dependencies download.
+To run in the background, use `docker compose up -d`; inspect output with `docker compose logs -f app`. After changing source or embedded assets, run `docker compose restart app` to rebuild and restart. Initial builds can take longer while dependencies download.
 
 After demo mode is implemented, enable it in PowerShell:
 
