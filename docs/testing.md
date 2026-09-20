@@ -21,23 +21,24 @@ Synchronize concurrency tests with channels and completion signals. Drive due-ti
 
 ## Routine commands
 
-Run from the project root once Go code exists:
+Validate Compose configuration now with `docker compose config --quiet`. Once Go code exists, run from the project root using the same service as development:
 
 ```powershell
-gofmt -w ./cmd ./internal
-go test ./...
-go vet ./...
-New-Item -ItemType Directory -Force -Path bin | Out-Null
-go build -o ./bin/uptime ./cmd/uptime
+docker compose run --rm --no-deps app gofmt -w ./cmd ./internal
+docker compose run --rm --no-deps app go test ./...
+docker compose run --rm --no-deps app go vet ./...
+docker compose run --rm --no-deps app go build -o /tmp/uptime ./cmd/uptime
 ```
 
 For scheduler/concurrency changes, also run:
 
 ```powershell
-go test -race ./...
+docker compose run --rm --no-deps app go test -race ./...
 ```
 
-The race detector needs a supported platform and C toolchain even though the chosen SQLite driver is CGo-free. If unavailable on Windows, run it in a configured Linux CI environment and report the local limitation. In CI, check formatting without rewriting source, then run tests, vet, race checks, and build with a pinned Go version. Add CI once the first runnable slice exists.
+These one-off containers override application startup and do not publish ports, so checks can run while the dashboard is open. The temporary build output is discarded after verification. Tests must use `t.TempDir()` databases instead of the configured application database.
+
+The race detector needs a supported architecture and C toolchain even though the chosen SQLite driver is CGo-free. The pinned Debian-based Go image supplies the toolchain; use Linux amd64 or arm64 for race verification. In CI, validate Compose and check formatting without rewriting source, then run tests, vet, race checks, and build with the same pinned Go version. Add CI once the first runnable slice exists.
 
 Do not set an arbitrary coverage target. Cover important failure paths and state transitions; avoid tests that only mirror trivial field assignments or assert whole-page snapshots.
 
@@ -53,5 +54,6 @@ Do not set an arbitrary coverage target. Cover important failure paths and state
 8. Check a narrow mobile viewport, keyboard navigation, visible focus, and status labels without relying on color.
 9. Stop the process during active checks; shutdown completes and the next start opens the database successfully.
 10. Start the built executable from another directory using an explicit database path; embedded pages and assets still load.
+11. Run `docker compose down`, then `docker compose up`; saved monitors and history survive in the named volume. Verify shutdown completes within the configured grace period.
 
 Manual browser checks are sufficient initially. Add a small automated browser smoke test only when regressions or repeated release checks justify its tooling.

@@ -2,7 +2,7 @@
 
 A Go + HTMX showcase: add a website, watch its health, and inspect outages as they happen.
 
-**Status: planning scaffold.** The folders and implementation directions are prepared; application code, dependencies, and tests have not been created yet.
+**Status: planning scaffold.** The folders, Docker Compose development configuration, and implementation directions are prepared; application code, dependencies, and tests have not been created yet.
 
 ## The idea
 
@@ -32,13 +32,28 @@ Keep email alerts, accounts, billing, distributed workers, and elaborate charts 
 | Storage | SQLite through `database/sql` and `modernc.org/sqlite` |
 | Checks | Shared HTTP client, bounded goroutines, contexts |
 | Tests | `testing`, `net/http/httptest`, temporary SQLite files |
+| Development | Docker Compose with a pinned Go toolchain and persistent volumes |
 | Delivery | One executable plus a writable data directory |
+
+## Docker Compose
+
+Install Docker with Compose v2 (Docker Desktop with Linux containers on Windows). A local Go installation is optional.
+
+The toolchain is usable now:
+
+```powershell
+docker compose config --quiet
+docker compose run --rm --no-deps app go version
+```
+
+Once milestone 1 is implemented, start with `docker compose up` and open `http://localhost:8080`. Until then, startup exits with a scaffold message. See [development directions](docs/development.md) for module setup, restart, and storage behavior.
 
 ## Folder map
 
 ```text
 uptime-monitor/
   AGENTS.md                 Working rules for future implementation
+  compose.yaml              Go development service and persistent volumes
   cmd/uptime/               Executable entry point
   internal/uptime/          Application code, initially one package
     templates/             Full pages and reusable HTML fragments

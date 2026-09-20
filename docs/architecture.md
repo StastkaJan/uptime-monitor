@@ -16,11 +16,23 @@ Begin with `cmd/uptime` for wiring and `internal/uptime` for application code. F
 
 ## Technologies
 
-- Use a supported stable Go release, pin the chosen toolchain in development and CI, and commit `go.mod` and `go.sum` when code is added. Standard-library [net/http](https://pkg.go.dev/net/http) supplies routing, clients, and server lifecycle support.
+- Use Go 1.27.1, as pinned in `compose.yaml`; align the module and CI toolchain when code is added, and commit `go.mod` and `go.sum`. Update these pins together when upgrading. Standard-library [net/http](https://pkg.go.dev/net/http) supplies routing, clients, and server lifecycle support.
 - Use [html/template](https://pkg.go.dev/html/template) for escaped output. Embed templates and static assets so the executable can run from any directory. Never turn user input into trusted `template.HTML`.
 - Use a pinned stable HTMX release. [HTMX supports polling and HTML fragment responses](https://htmx.org/docs/); poll the results container every five seconds initially. Add SSE only if a later requirement needs lower latency.
 - Use `database/sql` with [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite), a CGo-free SQLite driver. Choose a compatible stable version when implementing storage and commit resolved dependency versions.
 - Use plain CSS and the Go standard library's structured logger. A frontend build pipeline, ORM, router framework, and message broker are unnecessary for the initial scope.
+
+## Docker Compose development
+
+The root `compose.yaml` defines one `app` service using the [official Go image](https://github.com/docker-library/official-images/blob/master/library/golang), pinned to `golang:1.27.1-bookworm`. The Debian-based toolchain supports Go builds and race tests. `GOTOOLCHAIN=local` prevents silent toolchain downloads; update the image when dependencies require a newer Go version.
+
+Bind-mount source at `/workspace`; store SQLite under `/data` in the `uptime-data` named volume. Separate volumes cache downloaded modules and build output. SQLite remains inside the application, with no database service. The same service runs one-off setup and verification commands via `docker compose run --rm --no-deps app ...`.
+
+The startup command builds a temporary executable and replaces the shell with it so shutdown reaches the application. Compose provides an init process and a 15-second stop grace period; implement an application shutdown deadline shorter than that. Restart the service after source or embedded asset changes to rebuild. There is no automatic file watcher.
+
+The server binds `0.0.0.0:8080` inside the container; the published host port is restricted to `127.0.0.1:8080`. This follows the [Compose service configuration](https://docs.docker.com/reference/compose-file/services/). Container loopback refers to the container itself, so the built-in demo endpoint stays in the same process.
+
+This is a development environment with source and compiler available. Add a multi-stage Dockerfile with a non-root runtime only when preparing a deployable image; it is not required to use the current Compose toolchain.
 
 ## Data and rules
 
@@ -74,7 +86,7 @@ Use semantic HTML, explicit labels, keyboard-accessible actions, visible focus, 
 
 ## Runtime and demo defaults
 
-Initial configuration: `UPTIME_ADDR=127.0.0.1:8080`, `UPTIME_DB=data/uptime.db`, and `UPTIME_DEMO=false`. Read environment values explicitly; `.env` loading is not implied. Validate them at startup and log actionable errors. Set HTTP server header and idle timeouts and a shutdown deadline.
+Native defaults: `UPTIME_ADDR=127.0.0.1:8080`, `UPTIME_DB=data/uptime.db`, and `UPTIME_DEMO=false`. Compose explicitly overrides the address to `0.0.0.0:8080` and database path to `/data/uptime.db`. It interpolates `UPTIME_DEMO` from the host environment or a local Compose `.env` file. The Go application reads environment variables directly and does not load `.env` files itself. Validate configuration at startup and log actionable errors. Set HTTP server header and idle timeouts and a shutdown deadline below Compose's 15-second grace period.
 
 In explicit local demo mode, seed one demo monitor and mount a controlled endpoint plus a POST action to switch it between 200 and 503. Keep its state synchronized across requests. Other monitors and incidental GET requests must not change demo state.
 

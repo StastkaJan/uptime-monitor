@@ -1,0 +1,35 @@
+# Development toolchain; application startup requires roadmap milestone 1.
+services:
+  app:
+    image: golang:1.27.1-bookworm
+    working_dir: /workspace
+    init: true
+    command:
+      - sh
+      - -ec
+      - |
+        if [ ! -f go.mod ] || [ ! -f cmd/uptime/main.go ]; then
+          echo 'Planning scaffold: implement roadmap milestone 1 before starting the app.' >&2
+          exit 1
+        fi
+        go build -o /tmp/uptime ./cmd/uptime
+        exec /tmp/uptime
+    environment:
+      UPTIME_ADDR: 0.0.0.0:8080
+      UPTIME_DB: /data/uptime.db
+      UPTIME_DEMO: "${UPTIME_DEMO:-false}"
+      GOTOOLCHAIN: local
+      GOCACHE: /go-build
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - .:/workspace
+      - uptime-data:/data
+      - go-modules:/go/pkg/mod
+      - go-build:/go-build
+    stop_grace_period: 15s
+
+volumes:
+  uptime-data:
+  go-modules:
+  go-build:

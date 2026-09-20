@@ -1,15 +1,16 @@
 # Implementation roadmap
 
-Implement in this order. Each milestone should be a small reviewable change or a few focused commits. All checkboxes describe future work.
+Implement in this order. Each milestone should be a small reviewable change or a few focused commits. The Docker Compose development configuration is prepared; the unchecked items describe future work.
 
 ## 1. Runnable shell
 
-- [ ] Initialize the Go module and executable entry point.
+- [ ] Initialize the Go module through Compose and add the executable entry point.
 - [ ] Serve an embedded dashboard shell and CSS, plus `GET /healthz`.
 - [ ] Add address configuration, server timeouts, and graceful shutdown.
 - [ ] Test the health route and full dashboard response.
+- [ ] Validate Compose configuration, startup, port access, and graceful shutdown with the real app.
 
-Done when `go run ./cmd/uptime` serves a page, tests/vet/build pass, and the binary serves embedded assets from another working directory.
+Done when `docker compose up` serves a page at `http://localhost:8080`, Compose-based tests/vet/build pass, and the binary serves embedded assets from another working directory.
 
 ## 2. Persistent monitors
 
@@ -19,7 +20,7 @@ Done when `go run ./cmd/uptime` serves a page, tests/vet/build pass, and the bin
 - [ ] Add same-origin protection, body limits, and readable error responses.
 - [ ] Test validation, mutations, persistence across reopening, and failure handling.
 
-Done when a user can add and edit a monitor and find it after a restart with JavaScript disabled.
+Done when a user can add and edit a monitor and find it after `docker compose down` followed by `docker compose up`, with JavaScript disabled and the named data volume preserved.
 
 ## 3. Checks and incidents
 
