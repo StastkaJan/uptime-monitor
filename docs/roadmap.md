@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-M1 implementation is in progress. See [verification evidence](verification.md) for checks and remaining gate requirements.
+M1 is complete and G1 passed, including hosted CI. See [verification evidence](verification.md) for results. Later milestones remain planned.
 
 Implement in this order. Each milestone should be a small reviewable change or a few focused commits. The Docker Compose development configuration is prepared; the unchecked items describe future work.
 
@@ -11,6 +11,7 @@ Implement in this order. Each milestone should be a small reviewable change or a
 - [x] Add address configuration, server timeouts, and graceful shutdown.
 - [x] Test the health route and full dashboard response.
 - [x] Validate Compose configuration, startup, port access, and graceful shutdown with the real app.
+- [x] Add CI for formatting, tests, vet, race checks, build, and Compose validation with aligned toolchain pins.
 
 Done when `docker compose up` serves a page at `http://localhost:8080`, Compose-based tests/vet/build pass, and the binary serves embedded assets from another working directory.
 

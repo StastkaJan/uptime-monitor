@@ -1,0 +1,45 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Compose
+        run: docker compose config --quiet
+
+      # Inherit the pinned Go image from Compose. Shadow /data with a disposable
+      # anonymous volume so verification cannot write to the application volume.
+      - name: Check formatting
+        run: |
+          docker compose run --rm --no-deps --volume /data app sh -ec '
+            files=$(gofmt -l ./cmd ./internal)
+            if [ -n "$files" ]; then
+              printf "Run gofmt on:\n%s\n" "$files"
+              exit 1
+            fi
+          '
+
+      - name: Test
+        run: docker compose run --rm --no-deps --volume /data -e UPTIME_DB=/tmp/uptime-test.db app go test ./...
+
+      - name: Vet
+        run: docker compose run --rm --no-deps --volume /data app go vet ./...
+
+      - name: Race check
+        run: docker compose run --rm --no-deps --volume /data -e UPTIME_DB=/tmp/uptime-test.db app go test -race ./...
+
+      - name: Build
+        # The checkout belongs to the runner, not the container user. This
+        # throwaway verification binary does not need Git provenance stamping.
+        run: docker compose run --rm --no-deps --volume /data app go build -buildvcs=false -o /tmp/uptime ./cmd/uptime

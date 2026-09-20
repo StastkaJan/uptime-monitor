@@ -1,6 +1,6 @@
 # Testing and acceptance
 
-There are no runnable tests in this scaffold yet. Add behavior tests with each implementation slice. Go's [built-in test tooling](https://go.dev/doc/tutorial/add-a-test) is the default; no assertion or mocking framework is needed.
+The runnable shell has handler, configuration, and process-lifecycle tests. Add behavior tests with each implementation slice. Go's [built-in test tooling](https://go.dev/doc/tutorial/add-a-test) is the default; no assertion or mocking framework is needed. Recorded results are in [verification evidence](verification.md).
 
 ## What to test
 
@@ -21,7 +21,7 @@ Synchronize concurrency tests with channels and completion signals. Drive due-ti
 
 ## Routine commands
 
-Validate Compose configuration now with `docker compose config --quiet`. Once Go code exists, run from the project root using the same service as development:
+Validate Compose configuration with `docker compose config --quiet`. Run from the project root using the same service as development:
 
 ```powershell
 docker compose run --rm --no-deps app gofmt -w ./cmd ./internal
@@ -38,7 +38,11 @@ docker compose run --rm --no-deps app go test -race ./...
 
 These one-off containers override application startup and do not publish ports, so checks can run while the dashboard is open. The temporary build output is discarded after verification. Tests must use `t.TempDir()` databases instead of the configured application database.
 
-The race detector needs a supported architecture and C toolchain even though the chosen SQLite driver is CGo-free. The pinned Debian-based Go image supplies the toolchain; use Linux amd64 or arm64 for race verification. In CI, validate Compose and check formatting without rewriting source, then run tests, vet, race checks, and build with the same pinned Go version. Add CI once the first runnable slice exists.
+The race detector needs a supported architecture and C toolchain even though the chosen SQLite driver is CGo-free. The pinned Debian-based Go image supplies the toolchain; use Linux amd64 or arm64 for race verification. In CI, validate Compose and check formatting without rewriting source, then run tests, vet, race checks, and build with the same pinned Go version. The runnable shell includes this CI workflow.
+
+The [verification workflow](../.github/workflows/verify.yml) runs on pushes, pull requests, and manual dispatches using Ubuntu 24.04 and the exact Go image from Compose. It checks formatting without rewriting source, then runs tests, vet, race checks, and build. Each verification container adds `--volume /data` to shadow the application volume with a disposable anonymous volume; test and race commands additionally set `-e UPTIME_DB=/tmp/uptime-test.db`. Use those same options locally when reproducing CI. Tests still create their own isolated `t.TempDir()` data.
+
+The CI build adds `-buildvcs=false` because its disposable binary does not need Git metadata and the hosted checkout and container can have different owners. Application builds retain their normal settings.
 
 Do not set an arbitrary coverage target. Cover important failure paths and state transitions; avoid tests that only mirror trivial field assignments or assert whole-page snapshots.
 

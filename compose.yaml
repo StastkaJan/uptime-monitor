@@ -1,4 +1,4 @@
-# Development toolchain; application startup requires roadmap milestone 1.
+# Development toolchain shared by the runnable application and verification.
 services:
   app:
     image: golang:1.27.1-bookworm

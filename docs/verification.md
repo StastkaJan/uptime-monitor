@@ -37,3 +37,39 @@ dependencies, so no `go.sum` is needed yet.
 The ticket's Astra integrated delegated configuration tests and performed the
 runtime checks. The coordinating agent reviewed configuration, signal wiring,
 the ten-second shutdown deadline, and the lifecycle tests before committing.
+
+## UPT-003 and combined G1 verification
+
+The workflow runs Compose validation, nonmutating formatting verification,
+tests, vet, race checks, and build using the Compose Go 1.27.1 pin on Linux.
+Its Astra integrated a delegated workflow review with no findings. Live mount
+inspection confirmed that `/data` uses an anonymous volume during checks.
+
+All workflow-equivalent commands passed against the combined source. The
+coordinating agent independently verified the final application:
+
+- Host requests for health, dashboard, and stylesheet passed.
+- Real Compose shutdown took 1.134 seconds and left exit code 0, running false,
+  and PID 0. No application container remained running.
+- The binary served embedded HTML/CSS from `/tmp`, used the native loopback
+  default when `UPTIME_ADDR` was unset, and exited cleanly on SIGTERM.
+- Invalid `UPTIME_ADDR` produced an actionable startup error and nonzero exit.
+- An initial ten-second readiness window expired during the source build;
+  retrying after the build completed passed. Allow for compilation before
+  testing HTTP readiness.
+
+The [first hosted run](https://github.com/StastkaJan/uptime-monitor/actions/runs/35524661259)
+passed Compose validation, formatting, tests, vet, and race checks, but the
+build failed obtaining VCS status (exit 128). CI now disables VCS stamping for
+its disposable binary with `-buildvcs=false`, avoiding checkout ownership
+differences between the hosted runner and container.
+
+The [hosted rerun](https://github.com/StastkaJan/uptime-monitor/actions/runs/35524816647)
+passed every step on commit `62b95da010c17e86c3bfd8660badce7d22fd5177`:
+Compose validation, formatting, tests, vet, race checks, and build. The ticket's
+Astra verified the run and the coordinating agent independently confirmed all
+step conclusions. The subsequent gate-recording amendment changes documentation
+only.
+
+**G1 passed; UPT-001 through UPT-003 are complete.** Later milestones have not
+been implemented.
