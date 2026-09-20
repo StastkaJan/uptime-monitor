@@ -63,8 +63,10 @@ uptime-monitor/
     development.md         Setup, splitting work, reuse, dependencies
     testing.md             Verification strategy and acceptance checks
     roadmap.md             Ordered implementation slices
+    integration-stages.md  Component integration and milestone gates
+    tickets.md             Dependency-ordered implementation tickets
 ```
 
-Read [architecture](docs/architecture.md), then follow the [roadmap](docs/roadmap.md). Use [development directions](docs/development.md) and the [testing guide](docs/testing.md) while implementing.
+Read [architecture](docs/architecture.md), then follow the [roadmap](docs/roadmap.md), [integration stages](docs/integration-stages.md), and [implementation tickets](docs/tickets.md). Use [development directions](docs/development.md) and the [testing guide](docs/testing.md) while implementing.
 
 See [verification evidence](docs/verification.md) for implemented slices and remaining integration checks. Proceed to persistent monitors only after the runnable-shell gate passes.

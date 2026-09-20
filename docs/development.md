@@ -6,7 +6,7 @@ The runnable shell includes the Go module and executable. Docker Compose is the 
 
 1. Install Docker with Compose v2 and start its engine. On Windows, use Docker Desktop in Linux-container mode. Confirm `docker compose version` and `docker info` work.
 2. From this folder, validate the configuration and check the toolchain using the commands below. The service uses Go 1.27.1; keep CI aligned with that version.
-3. Implement milestone 1 from [the roadmap](roadmap.md). Add the SQLite driver only in the storage milestone and vendor a pinned HTMX asset when interactions are introduced.
+3. Follow milestone 1 from [the roadmap](roadmap.md), starting with UPT-001 in [the ticket backlog](tickets.md), and verify its [integration gate](integration-stages.md). Add the SQLite driver only in the storage milestone and vendor a pinned HTMX asset when interactions are introduced.
 4. Commit dependency lock information and update this guide with the exact versions and any new setup steps.
 
 Check the prepared toolchain before starting the application. The first image download requires internet access:
@@ -60,7 +60,7 @@ the named data volume.
 
 ## How to split work
 
-Work in small, end-to-end slices: one user behavior, its persistence if needed, its HTML, and its tests. The first usable slice is adding a monitor and seeing it after a restart. Finish each roadmap milestone's acceptance checks before advancing.
+Work in small, end-to-end slices: one user behavior, its persistence if needed, its HTML, and its tests. The first usable slice is adding a monitor and seeing it after a restart. Use ticket dependencies for implementation order and finish each milestone's integration gate before advancing. Introduce CI in milestone 1 and extend it as behavior is added. Keep ticket and roadmap checkboxes aligned with verified completion.
 
 Split source files by responsibility as described in [the application folder](../internal/uptime/README.md). Split a package only when it has a clear cohesive job and the import direction stays simple. A file's length alone is not a reason for a new abstraction.
 
