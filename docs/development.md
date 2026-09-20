@@ -39,6 +39,25 @@ The database lives at `/data/uptime.db` in the `uptime-data` volume, separate fr
 
 Keep runtime databases and credentials out of version control. The application should create its data directory safely if missing. A native run remains possible with Go 1.27.1 installed: `go run ./cmd/uptime`, using `data/uptime.db` by default. The Compose configuration uses the official toolchain image directly; a custom Dockerfile is deferred until an executable deployment image is needed.
 
+## Runtime configuration
+
+The executable reads environment variables directly; Compose can additionally
+read its own `.env` file. Native defaults are `UPTIME_ADDR=127.0.0.1:8080`,
+`UPTIME_DB=data/uptime.db`, and `UPTIME_DEMO=false`. Compose sets the address to
+`0.0.0.0:8080` inside the container and publishes only `127.0.0.1:8080` on the host.
+
+`UPTIME_ADDR` requires an explicit host and numeric port from 1 to 65535.
+`UPTIME_DB` must be nonblank, and `UPTIME_DEMO` accepts Go boolean values such as
+`true` and `false`. Invalid or explicitly empty values fail startup with the
+variable name and corrective guidance. Database and demo settings are validated
+now; their features are introduced in later milestones.
+
+The HTTP server has a five-second header timeout and a 60-second idle timeout.
+Ctrl+C or SIGTERM stops accepting requests and allows up to ten seconds for
+active requests to finish, then closes remaining connections. This deadline is
+shorter than Compose's 15-second stop grace period. `docker compose stop` keeps
+the named data volume.
+
 ## How to split work
 
 Work in small, end-to-end slices: one user behavior, its persistence if needed, its HTML, and its tests. The first usable slice is adding a monitor and seeing it after a restart. Finish each roadmap milestone's acceptance checks before advancing.

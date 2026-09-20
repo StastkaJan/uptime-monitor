@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/StastkaJan/uptime-monitor/internal/uptime"
@@ -17,20 +22,30 @@ func main() {
 }
 
 func run() error {
+	config, err := uptime.LoadConfig()
+	if err != nil {
+		return err
+	}
 	handler, err := uptime.NewHandler()
 	if err != nil {
 		return err
 	}
-	addr := os.Getenv("UPTIME_ADDR")
-	if addr == "" {
-		addr = "127.0.0.1:8080"
-	}
 	server := &http.Server{
-		Addr:              addr,
+		Addr:              config.Addr,
 		Handler:           handler,
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
-	slog.Info("starting HTTP server", "address", addr)
-	return server.ListenAndServe()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	listener, err := net.Listen("tcp", config.Addr)
+	if err != nil {
+		return fmt.Errorf("listen on UPTIME_ADDR %q: %w", config.Addr, err)
+	}
+	slog.Info("starting HTTP server", "address", listener.Addr().String())
+	if err := serve(ctx, server, listener, 10*time.Second); err != nil {
+		return err
+	}
+	slog.Info("HTTP server stopped")
+	return nil
 }

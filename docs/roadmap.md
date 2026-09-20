@@ -8,9 +8,9 @@ Implement in this order. Each milestone should be a small reviewable change or a
 
 - [x] Initialize the Go module through Compose and add the executable entry point.
 - [x] Serve an embedded dashboard shell and CSS, plus `GET /healthz`.
-- [ ] Add address configuration, server timeouts, and graceful shutdown.
+- [x] Add address configuration, server timeouts, and graceful shutdown.
 - [x] Test the health route and full dashboard response.
-- [ ] Validate Compose configuration, startup, port access, and graceful shutdown with the real app.
+- [x] Validate Compose configuration, startup, port access, and graceful shutdown with the real app.
 
 Done when `docker compose up` serves a page at `http://localhost:8080`, Compose-based tests/vet/build pass, and the binary serves embedded assets from another working directory.
 
